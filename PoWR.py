@@ -11,6 +11,16 @@ import pdb
 from scipy import interpolate
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#Read a variable from the PoWR configuration file
+def getPoWRConfig(var = 'POWR_WORK'):
+#    configfile = os.path.expanduser("~/.powrconfig")
+    varval = os.environ.get(var)
+    if (len(varval) == 0):
+        return False
+    else:
+        return varval
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Read the last n lines of a file via the tail os command
 def tail(f, n, offset = 0):
     num = str(n + offset)
@@ -121,7 +131,11 @@ def getMagnitudes(modelname):
 #Helper function: Read variable via msread from MODEL file
 def getMSREADVar(modelname, variable, format = 'string', modfilename = 'MODEL'):
     modelfile = modelname+'/'+modfilename
-    msread = os.path.expanduser("~ansander/proc.dir/msread.com")
+    powrdir = getPoWRConfig('POWR_WORK')
+    if (powrdir is False):
+        print ('Fatal error: No PoWR installation found!')
+        quit()
+    msread = powrdir + 'proc.dir/msread.com'
     command = msread + ' ' + variable + ' ' + modelfile
     p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
